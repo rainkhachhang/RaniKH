@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>RANI</title>
+
+<link href="https://googleapis.com" rel="stylesheet">
+
+<style>
+* { 
+    box-sizing: border-box; 
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  background: linear-gradient(135deg, #4CAF50, #2e7d32);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  padding: 20px;
+  overflow-x: hidden;
+}
+
+/* HEADER ANIMATION */
+.header { text-align: center; width: 100%; overflow: hidden; }
+.logo {
+  font-family: 'Black Ops One', cursive;
+  font-size: 60px;
+  margin: 0;
+  animation: slideLeft 1s ease-out forwards;
+}
+.slogan {
+  font-size: 14px;
+  margin-top: 2px;
+  animation: slideRight 1s ease-out forwards;
+}
+
+@keyframes slideLeft { 0% { transform: translateX(-100%); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
+@keyframes slideRight { 0% { transform: translateX(100%); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
+
+/* CARD */
+.card {
+  margin-top: 25px;
+  width: 100%;
+  max-width: 400px;
+  background: #f5f5f5;
+  border-radius: 25px;
+  padding: 25px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  color: black;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 15px;
+  margin: 12px 0;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* HIỆU ỨNG NÚT BẤM */
+.btn-submit {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(45deg, #ff5722, #ff9800, #ff5722);
+  background-size: 200% auto;
+  color: white;
+  border: none;
+  border-radius: 14px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(255, 87, 34, 0.4);
+  transition: 0.3s;
+  animation: pulse 2s infinite; /* Hiệu ứng đập nhẹ thu hút */
+}
+
+/* Chạy màu gradient trên nút */
+.btn-submit:hover {
+  background-position: right center;
+}
+
+/* Hiệu ứng rung khi nhấn */
+.shake {
+  animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+#status { text-align: center; margin-top: 15px; font-size: 14px; font-weight: 600; }
+</style>
+
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">RANI</div>
+  <div class="slogan">Tận Tâm - Phục Vụ</div>
+</div>
+
+<div class="card">
+  <input id="name" placeholder="Tên cửa hàng">
+  <input id="phone" type="tel" placeholder="Số điện thoại">
+  <textarea id="note" placeholder="Ghi chú (Số lượng, loại hàng...)"></textarea>
+
+  <p style="font-size:12px; text-align:center; color: #666; margin-bottom: 15px;">
+    📍 Cần vị trí để xác định nơi giao hàng
+  </p>
+
+  <button id="mainBtn" class="btn-submit" onclick="handleSubmit()">Hối Hàng Ngay</button>
+
+  <div id="status"></div>
+</div>
+
+<script>
+function handleSubmit(){
+  let btn = document.getElementById("mainBtn");
+  let status = document.getElementById("status");
+  let name = document.getElementById("name").value;
+  let phone = document.getElementById("phone").value;
+  let note = document.getElementById("note").value;
+
+  // Thêm hiệu ứng rung khi bấm
+  btn.classList.add('shake');
+  setTimeout(() => btn.classList.remove('shake'), 400);
+
+  if(phone.trim() === ""){
+    status.innerHTML = "⚠️ Vui lòng nhập số điện thoại";
+    status.style.color = "red";
+    return;
+  }
+
+  status.innerHTML = "🔄 Đang lấy vị trí...";
+  status.style.color = "blue";
+
+  navigator.geolocation.getCurrentPosition(
+    function(pos){
+      let lat = pos.coords.latitude;
+      let lng = pos.coords.longitude;
+      let url = "https://google.com"
+        + "?name=" + encodeURIComponent(name)
+        + "&phone=" + encodeURIComponent(phone)
+        + "&note=" + encodeURIComponent(note)
+        + "&lat=" + lat
+        + "&lng=" + lng;
+
+      fetch(url)
+        .then(res => res.text())
+        .then(data => {
+          status.innerHTML = "✅ Gửi thành công!";
+          status.style.color = "green";
+          btn.style.background = "#4CAF50"; // Nút đổi sang màu xanh khi thành công
+          btn.innerText = "Đã Gửi";
+        });
+    },
+    function(){
+      status.innerHTML = "⚠️ Hãy bật định vị và thử lại";
+      status.style.color = "red";
+    }
+  );
+}
+</script>
+
+</body>
+</html>
