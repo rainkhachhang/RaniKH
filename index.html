@@ -3,15 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RANI</title>
+<title>RANI - Hối Hàng</title>
 
 <link href="https://googleapis.com" rel="stylesheet">
 
 <style>
-* { 
-    box-sizing: border-box; 
-    -webkit-tap-highlight-color: transparent;
-}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 body {
   margin: 0;
@@ -27,46 +24,48 @@ body {
   overflow-x: hidden;
 }
 
-/* HEADER ANIMATION */
+/* HIỆU ỨNG CHỮ CHẠY */
 .header { text-align: center; width: 100%; overflow: hidden; }
 .logo {
   font-family: 'Black Ops One', cursive;
   font-size: 60px;
   margin: 0;
-  animation: slideLeft 1s ease-out forwards;
+  animation: slideLeft 1.2s ease-out forwards;
 }
 .slogan {
-  font-size: 14px;
-  margin-top: 2px;
-  animation: slideRight 1s ease-out forwards;
+  font-size: 15px;
+  margin-top: 5px;
+  font-weight: 600;
+  animation: slideRight 1.2s ease-out forwards;
 }
 
 @keyframes slideLeft { 0% { transform: translateX(-100%); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
 @keyframes slideRight { 0% { transform: translateX(100%); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
 
-/* CARD */
+/* THẺ FORM */
 .card {
   margin-top: 25px;
   width: 100%;
   max-width: 400px;
-  background: #f5f5f5;
+  background: #ffffff;
   border-radius: 25px;
   padding: 25px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-  color: black;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  color: #333;
 }
 
 input, textarea {
   width: 100%;
   padding: 15px;
-  margin: 12px 0;
+  margin: 10px 0;
   border-radius: 12px;
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
   font-size: 16px;
   font-family: 'Montserrat', sans-serif;
+  background: #f9f9f9;
 }
 
-/* HIỆU ỨNG NÚT BẤM */
+/* NÚT BẤM ĐA HIỆU ỨNG */
 .btn-submit {
   width: 100%;
   padding: 16px;
@@ -80,35 +79,27 @@ input, textarea {
   cursor: pointer;
   box-shadow: 0 4px 15px rgba(255, 87, 34, 0.4);
   transition: 0.3s;
-  animation: pulse 2s infinite; /* Hiệu ứng đập nhẹ thu hút */
+  margin-top: 10px;
 }
 
-/* Chạy màu gradient trên nút */
-.btn-submit:hover {
-  background-position: right center;
-}
+.btn-submit:active { transform: scale(0.95); }
 
-/* Hiệu ứng rung khi nhấn */
-.shake {
-  animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.02); }
-  100% { transform: scale(1); }
-}
-
+/* Rung khi lỗi hoặc khi nhấn */
+.shake { animation: shake 0.4s ease-in-out; }
 @keyframes shake {
-  10%, 90% { transform: translate3d(-1px, 0, 0); }
-  20%, 80% { transform: translate3d(2px, 0, 0); }
-  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-  40%, 60% { transform: translate3d(4px, 0, 0); }
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
 }
 
-#status { text-align: center; margin-top: 15px; font-size: 14px; font-weight: 600; }
+#status { 
+  text-align: center; 
+  margin-top: 15px; 
+  font-size: 14px; 
+  font-weight: 600;
+  line-height: 1.5;
+}
 </style>
-
 </head>
 <body>
 
@@ -118,64 +109,84 @@ input, textarea {
 </div>
 
 <div class="card">
-  <input id="name" placeholder="Tên cửa hàng">
-  <input id="phone" type="tel" placeholder="Số điện thoại">
-  <textarea id="note" placeholder="Ghi chú (Số lượng, loại hàng...)"></textarea>
+  <input id="name" placeholder="Tên cửa hàng / Khách hàng">
+  <input id="phone" type="tel" placeholder="Số điện thoại (Bắt buộc)">
+  <textarea id="note" placeholder="Ghi chú thêm..."></textarea>
 
-  <p style="font-size:12px; text-align:center; color: #666; margin-bottom: 15px;">
-    📍 Cần vị trí để xác định nơi giao hàng
+  <p style="font-size:12px; text-align:center; color: #888; margin-bottom: 10px;">
+    📍 Vui lòng cho phép truy cập vị trí để gửi tin
   </p>
 
-  <button id="mainBtn" class="btn-submit" onclick="handleSubmit()">Hối Hàng Ngay</button>
+  <button id="mainBtn" class="btn-submit" onclick="handleSubmit()">HỐI HÀNG NGAY</button>
 
   <div id="status"></div>
 </div>
 
 <script>
-function handleSubmit(){
-  let btn = document.getElementById("mainBtn");
-  let status = document.getElementById("status");
-  let name = document.getElementById("name").value;
-  let phone = document.getElementById("phone").value;
-  let note = document.getElementById("note").value;
+function handleSubmit() {
+  const btn = document.getElementById("mainBtn");
+  const status = document.getElementById("status");
+  const name = document.getElementById("name").value;
+  const phone = document.getElementById("phone").value;
+  const note = document.getElementById("note").value;
 
-  // Thêm hiệu ứng rung khi bấm
+  // Hiệu ứng rung
   btn.classList.add('shake');
   setTimeout(() => btn.classList.remove('shake'), 400);
 
-  if(phone.trim() === ""){
-    status.innerHTML = "⚠️ Vui lòng nhập số điện thoại";
+  if (phone.trim() === "") {
+    status.innerHTML = "⚠️ Vui lòng nhập số điện thoại!";
     status.style.color = "red";
     return;
   }
 
-  status.innerHTML = "🔄 Đang lấy vị trí...";
+  status.innerHTML = "🔄 Đang lấy vị trí GPS...";
   status.style.color = "blue";
 
+  // Lấy vị trí GPS
   navigator.geolocation.getCurrentPosition(
-    function(pos){
-      let lat = pos.coords.latitude;
-      let lng = pos.coords.longitude;
-      let url = "https://google.com"
+    function(pos) {
+      status.innerHTML = "📡 Đang gửi dữ liệu...";
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+
+      // --- THAY LINK CỦA BẠN VÀO DÒNG DƯỚI ĐÂY ---
+      const scriptURL = "https://script.google.com/macros/s/AKfycbyYi4AAFMpH13O_wrG9vW9C44gFQh3vwhTAD85E0NybR3uZ_MGorADcN4TUjnCu9W81/exec";
+      
+      const finalURL = scriptURL 
         + "?name=" + encodeURIComponent(name)
         + "&phone=" + encodeURIComponent(phone)
         + "&note=" + encodeURIComponent(note)
         + "&lat=" + lat
         + "&lng=" + lng;
 
-      fetch(url)
-        .then(res => res.text())
-        .then(data => {
-          status.innerHTML = "✅ Gửi thành công!";
+      fetch(finalURL, { mode: 'no-cors' })
+        .then(() => {
+          status.innerHTML = "✅ Gửi thành công! <br> RANI đã nhận được thông tin.";
           status.style.color = "green";
-          btn.style.background = "#4CAF50"; // Nút đổi sang màu xanh khi thành công
-          btn.innerText = "Đã Gửi";
+          btn.style.background = "#4CAF50";
+          btn.innerText = "ĐÃ GỬI XONG";
+          
+          // Xóa trắng form
+          document.getElementById("name").value = "";
+          document.getElementById("phone").value = "";
+          document.getElementById("note").value = "";
+        })
+        .catch(err => {
+          status.innerHTML = "❌ Lỗi mạng: Không thể gửi đi.";
+          status.style.color = "red";
         });
     },
-    function(){
-      status.innerHTML = "⚠️ Hãy bật định vị và thử lại";
+    function(error) {
+      let msg = "";
+      if (error.code == 1) msg = "❌ Bạn cần 'Cho phép' vị trí trên điện thoại.";
+      else if (error.code == 3) msg = "❌ Hết thời gian lấy vị trí. Thử lại nhé!";
+      else msg = "❌ Lỗi GPS. Vui lòng bật vị trí.";
+      
+      status.innerHTML = msg;
       status.style.color = "red";
-    }
+    },
+    { enableHighAccuracy: true, timeout: 8000 }
   );
 }
 </script>
