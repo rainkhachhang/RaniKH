@@ -33,20 +33,25 @@ input, textarea {
   border: 1px solid #ddd; font-size: 16px; background: #f9f9f9;
 }
 
-/* BUTTON */
+/* BUTTONS */
 .btn-submit {
-  width: 100%; padding: 16px; background: linear-gradient(45deg, #ff5722, #ff9800, #ff5722);
-  background-size: 200% auto; color: white; border: none; border-radius: 14px;
-  font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 10px;
+  width: 100%; padding: 16px; background: linear-gradient(45deg, #ff5722, #ff9800);
+  color: white; border: none; border-radius: 14px;
+  font-size: 17px; font-weight: bold; cursor: pointer; margin-top: 10px;
+}
+.btn-call {
+  width: 100%; padding: 16px; background: linear-gradient(45deg, #2196F3, #00BCD4);
+  color: white; border: none; border-radius: 14px;
+  font-size: 17px; font-weight: bold; cursor: pointer; margin-top: 10px;
 }
 .shake { animation: shake 0.4s ease-in-out; }
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 
-/* MÀN HÌNH CHỜ XOAY XOAY */
+/* LOADING */
 #loadingOverlay {
   display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   background: rgba(0,0,0,0.85); z-index: 9999; flex-direction: column;
-  justify-content: center; align-items: center; text-align: center; padding: 20px;
+  justify-content: center; align-items: center; text-align: center;
 }
 .loader {
   border: 6px solid #f3f3f3; border-top: 6px solid #ff5722;
@@ -54,25 +59,15 @@ input, textarea {
 }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-/* THÔNG BÁO HƯỚNG DẪN BẬT VỊ TRÍ */
-#guideBox {
-  display: none; background: #fff3f3; border: 2px solid #ff4444;
-  border-radius: 15px; padding: 15px; margin-top: 15px; color: #333; font-size: 14px;
-}
-.btn-guide {
-  background: #444; color: white; border: none; padding: 8px 15px;
-  border-radius: 8px; margin-top: 10px; font-weight: bold; cursor: pointer;
-}
-
 #status { text-align: center; margin-top: 15px; font-size: 14px; font-weight: 600; }
+#guideBox { display: none; background: #fff3f3; border: 2px solid #ff4444; border-radius: 15px; padding: 15px; margin-top: 15px; }
 </style>
 </head>
 <body>
 
-<!-- Loading Overlay -->
 <div id="loadingOverlay">
   <div class="loader"></div>
-  <p style="color: white; margin-top: 15px; font-weight: bold;">ĐANG GỬI THÔNG TIN...<br><small>Vui lòng không thoát trang</small></p>
+  <p style="color: white; margin-top: 15px; font-weight: bold;">ĐANG GỬI THÔNG TIN...<br><small>Vui lòng chờ giây lát</small></p>
 </div>
 
 <div class="header">
@@ -85,21 +80,31 @@ input, textarea {
   <input id="phone" type="tel" placeholder="Số điện thoại (Bắt buộc)">
   <textarea id="note" placeholder="Ghi chú thêm..."></textarea>
   
-  <button id="mainBtn" class="btn-submit" onclick="handleSubmit()">HỐI HÀNG NGAY</button>
+  <!-- Nút chính lấy vị trí -->
+  <button id="mainBtn" class="btn-submit" onclick="handleSubmit('gps')">HỐI HÀNG (CẦN VỊ TRÍ)</button>
+  
+  <!-- Nút phụ cho người lớn tuổi -->
+  <button id="callBtn" class="btn-call" onclick="handleSubmit('call')">YÊU CẦU GỌI LẠI NGAY</button>
   
   <div id="status"></div>
 
-  <!-- Hộp hướng dẫn hiện ra khi bị từ chối GPS -->
   <div id="guideBox">
     <b style="color: #d32f2f;">⚠️ BẠN CHƯA BẬT VỊ TRÍ</b><br>
-    <p id="guideText">Vui lòng cho phép truy cập vị trí để RANI xác định nơi giao hàng.</p>
-    <button class="btn-guide" onclick="location.reload()">Đã hiểu, thử lại</button>
+    <p id="guideText">Bấm nút "YÊU CẦU GỌI LẠI" bên trên nếu bạn không biết bật định vị.</p>
   </div>
 </div>
 
 <script>
-function handleSubmit() {
-  const btn = document.getElementById("mainBtn");
+// THAY LINK /EXEC CỦA BẠN VÀO ĐÂY
+const scriptURL = "https://script.google.com/macros/s/AKfycbwPiCZcfjdZ5hfc6WfNUq00C0nW7PIkf6vTeMHK3RK1qUqYymNdqWVR-VYT_W1rpUld/exec";
+
+function validatePhone(phone) {
+  // Kiểm tra SĐT Việt Nam: bắt đầu bằng 0, có 10 chữ số
+  const re = /^(0)[0-9]{9}$/;
+  return re.test(phone);
+}
+
+function handleSubmit(type) {
   const status = document.getElementById("status");
   const loader = document.getElementById("loadingOverlay");
   const guideBox = document.getElementById("guideBox");
@@ -107,77 +112,69 @@ function handleSubmit() {
   const phone = document.getElementById("phone").value;
   const note = document.getElementById("note").value;
 
-  btn.classList.add('shake');
-  setTimeout(() => btn.classList.remove('shake'), 400);
-
-  if (phone.trim() === "") {
-    status.innerHTML = "⚠️ Vui lòng nhập số điện thoại!";
+  if (!validatePhone(phone)) {
+    status.innerHTML = "⚠️ Số điện thoại không đúng (phải có 10 số)!";
     status.style.color = "red";
+    document.getElementById("phone").classList.add('shake');
+    setTimeout(() => document.getElementById("phone").classList.remove('shake'), 400);
     return;
   }
 
-  // Ẩn hướng dẫn cũ và hiện loading
   guideBox.style.display = "none";
   status.innerHTML = "";
   loader.style.display = "flex";
 
-  navigator.geolocation.getCurrentPosition(
-    function(pos) {
-      const lat = pos.coords.latitude;
-      const lng = pos.coords.longitude;
-
-      // --- DÁN LINK /EXEC CỦA BẠN VÀO ĐÂY ---
-      const scriptURL = "https://script.google.com/macros/s/AKfycbwPiCZcfjdZ5hfc6WfNUq00C0nW7PIkf6vTeMHK3RK1qUqYymNdqWVR-VYT_W1rpUld/exec";
-      
-      const finalURL = scriptURL 
-        + "?name=" + encodeURIComponent(name)
-        + "&phone=" + encodeURIComponent(phone)
-        + "&note=" + encodeURIComponent(note)
-        + "&lat=" + lat
-        + "&lng=" + lng;
-
-      fetch(finalURL, { mode: 'no-cors' })
-        .then(() => {
-          loader.style.display = "none";
-          status.innerHTML = "✅ Gửi thành công! RANI đã nhận tin.";
-          status.style.color = "green";
-          btn.style.background = "#4CAF50";
-          btn.innerText = "ĐÃ GỬI XONG";
-          document.getElementById("name").value = "";
-          document.getElementById("phone").value = "";
-          document.getElementById("note").value = "";
-        })
-        .catch(err => {
-          loader.style.display = "none";
-          status.innerHTML = "❌ Lỗi mạng: Không thể gửi đi.";
-          status.style.color = "red";
-        });
-    },
-    function(error) {
-      loader.style.display = "none";
-      if (error.code == 1) { // Bị từ chối (Denied)
-        showGuide();
-      } else {
-        status.innerHTML = "❌ Lỗi GPS: Hãy bật định vị điện thoại.";
+  if (type === 'call') {
+    // Gửi không cần lấy vị trí
+    sendData(name, phone, note + " [KH YÊU CẦU GỌI LẠI]", "", "");
+  } else {
+    // Gửi có lấy vị trí
+    navigator.geolocation.getCurrentPosition(
+      function(pos) {
+        sendData(name, phone, note, pos.coords.latitude, pos.coords.longitude);
+      },
+      function(error) {
+        loader.style.display = "none";
+        guideBox.style.display = "block";
+        status.innerHTML = "❌ Không lấy được vị trí.";
         status.style.color = "red";
-      }
-    },
-    { enableHighAccuracy: true, timeout: 8000 }
-  );
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  }
 }
 
-function showGuide() {
-  const guideBox = document.getElementById("guideBox");
-  const guideText = document.getElementById("guideText");
-  guideBox.style.display = "block";
+function sendData(name, phone, note, lat, lng) {
+  const loader = document.getElementById("loadingOverlay");
+  const status = document.getElementById("status");
+  const btn1 = document.getElementById("mainBtn");
+  const btn2 = document.getElementById("callBtn");
 
-  // Kiểm tra thiết bị để đưa ra hướng dẫn đúng
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-  if (isIOS) {
-    guideText.innerHTML = "Để bật lại: Nhấn vào chữ <b>AA</b> hoặc <b>ổ khóa</b> ở thanh địa chỉ phía dưới -> Chọn <b>Cài đặt trang web</b> -> Cho phép <b>Vị trí</b>.";
-  } else {
-    guideText.innerHTML = "Để bật lại: Nhấn vào <b>Hình ổ khóa</b> bên trái địa chỉ web -> Chọn <b>Quyền</b> -> Bật <b>Vị trí</b>.";
-  }
+  const finalURL = scriptURL 
+    + "?name=" + encodeURIComponent(name)
+    + "&phone=" + encodeURIComponent(phone)
+    + "&note=" + encodeURIComponent(note)
+    + "&lat=" + lat
+    + "&lng=" + lng;
+
+  fetch(finalURL, { mode: 'no-cors' })
+    .then(() => {
+      loader.style.display = "none";
+      status.innerHTML = "✅ ĐÃ GỬI THÀNH CÔNG!";
+      status.style.color = "green";
+      btn1.style.display = "none";
+      btn2.innerText = "RANI ĐÃ NHẬN TIN";
+      btn2.style.background = "#4CAF50";
+      
+      // Xóa form
+      document.getElementById("name").value = "";
+      document.getElementById("phone").value = "";
+      document.getElementById("note").value = "";
+    })
+    .catch(err => {
+      loader.style.display = "none";
+      status.innerHTML = "❌ Lỗi mạng, vui lòng thử lại.";
+    });
 }
 </script>
 </body>
