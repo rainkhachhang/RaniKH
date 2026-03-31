@@ -4,104 +4,76 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>RANI - Hối Hàng</title>
-
 <link href="https://googleapis.com" rel="stylesheet">
 
 <style>
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
 body {
-  margin: 0;
-  font-family: 'Montserrat', sans-serif;
+  margin: 0; font-family: 'Montserrat', sans-serif;
   background: linear-gradient(135deg, #4CAF50, #2e7d32);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  padding: 20px;
-  overflow-x: hidden;
+  min-height: 100vh; display: flex; flex-direction: column;
+  justify-content: center; align-items: center; color: white; padding: 20px; overflow-x: hidden;
 }
 
-/* HIỆU ỨNG CHỮ CHẠY */
+/* HEADER */
 .header { text-align: center; width: 100%; overflow: hidden; }
-.logo {
-  font-family: 'Black Ops One', cursive;
-  font-size: 60px;
-  margin: 0;
-  animation: slideLeft 1.2s ease-out forwards;
-}
-.slogan {
-  font-size: 15px;
-  margin-top: 5px;
-  font-weight: 600;
-  animation: slideRight 1.2s ease-out forwards;
-}
-
+.logo { font-family: 'Black Ops One', cursive; font-size: 60px; margin: 0; animation: slideLeft 1s ease-out forwards; }
+.slogan { font-size: 15px; margin-top: 5px; font-weight: 600; animation: slideRight 1s ease-out forwards; }
 @keyframes slideLeft { 0% { transform: translateX(-100%); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
 @keyframes slideRight { 0% { transform: translateX(100%); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
 
-/* THẺ FORM */
+/* FORM CARD */
 .card {
-  margin-top: 25px;
-  width: 100%;
-  max-width: 400px;
-  background: #ffffff;
-  border-radius: 25px;
-  padding: 25px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-  color: #333;
+  margin-top: 25px; width: 100%; max-width: 400px;
+  background: #ffffff; border-radius: 25px; padding: 25px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3); color: #333;
 }
-
 input, textarea {
-  width: 100%;
-  padding: 15px;
-  margin: 10px 0;
-  border-radius: 12px;
-  border: 1px solid #ddd;
-  font-size: 16px;
-  font-family: 'Montserrat', sans-serif;
-  background: #f9f9f9;
+  width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px;
+  border: 1px solid #ddd; font-size: 16px; background: #f9f9f9;
 }
 
-/* NÚT BẤM ĐA HIỆU ỨNG */
+/* BUTTON */
 .btn-submit {
-  width: 100%;
-  padding: 16px;
-  background: linear-gradient(45deg, #ff5722, #ff9800, #ff5722);
-  background-size: 200% auto;
-  color: white;
-  border: none;
-  border-radius: 14px;
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(255, 87, 34, 0.4);
-  transition: 0.3s;
-  margin-top: 10px;
+  width: 100%; padding: 16px; background: linear-gradient(45deg, #ff5722, #ff9800, #ff5722);
+  background-size: 200% auto; color: white; border: none; border-radius: 14px;
+  font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 10px;
 }
-
-.btn-submit:active { transform: scale(0.95); }
-
-/* Rung khi lỗi hoặc khi nhấn */
 .shake { animation: shake 0.4s ease-in-out; }
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+/* MÀN HÌNH CHỜ XOAY XOAY */
+#loadingOverlay {
+  display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.85); z-index: 9999; flex-direction: column;
+  justify-content: center; align-items: center; text-align: center; padding: 20px;
+}
+.loader {
+  border: 6px solid #f3f3f3; border-top: 6px solid #ff5722;
+  border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* THÔNG BÁO HƯỚNG DẪN BẬT VỊ TRÍ */
+#guideBox {
+  display: none; background: #fff3f3; border: 2px solid #ff4444;
+  border-radius: 15px; padding: 15px; margin-top: 15px; color: #333; font-size: 14px;
+}
+.btn-guide {
+  background: #444; color: white; border: none; padding: 8px 15px;
+  border-radius: 8px; margin-top: 10px; font-weight: bold; cursor: pointer;
 }
 
-#status { 
-  text-align: center; 
-  margin-top: 15px; 
-  font-size: 14px; 
-  font-weight: 600;
-  line-height: 1.5;
-}
+#status { text-align: center; margin-top: 15px; font-size: 14px; font-weight: 600; }
 </style>
 </head>
 <body>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay">
+  <div class="loader"></div>
+  <p style="color: white; margin-top: 15px; font-weight: bold;">ĐANG GỬI THÔNG TIN...<br><small>Vui lòng không thoát trang</small></p>
+</div>
 
 <div class="header">
   <div class="logo">RANI</div>
@@ -112,25 +84,29 @@ input, textarea {
   <input id="name" placeholder="Tên cửa hàng / Khách hàng">
   <input id="phone" type="tel" placeholder="Số điện thoại (Bắt buộc)">
   <textarea id="note" placeholder="Ghi chú thêm..."></textarea>
-
-  <p style="font-size:12px; text-align:center; color: #888; margin-bottom: 10px;">
-    📍 Vui lòng cho phép truy cập vị trí để gửi tin
-  </p>
-
+  
   <button id="mainBtn" class="btn-submit" onclick="handleSubmit()">HỐI HÀNG NGAY</button>
-
+  
   <div id="status"></div>
+
+  <!-- Hộp hướng dẫn hiện ra khi bị từ chối GPS -->
+  <div id="guideBox">
+    <b style="color: #d32f2f;">⚠️ BẠN CHƯA BẬT VỊ TRÍ</b><br>
+    <p id="guideText">Vui lòng cho phép truy cập vị trí để RANI xác định nơi giao hàng.</p>
+    <button class="btn-guide" onclick="location.reload()">Đã hiểu, thử lại</button>
+  </div>
 </div>
 
 <script>
 function handleSubmit() {
   const btn = document.getElementById("mainBtn");
   const status = document.getElementById("status");
+  const loader = document.getElementById("loadingOverlay");
+  const guideBox = document.getElementById("guideBox");
   const name = document.getElementById("name").value;
   const phone = document.getElementById("phone").value;
   const note = document.getElementById("note").value;
 
-  // Hiệu ứng rung
   btn.classList.add('shake');
   setTimeout(() => btn.classList.remove('shake'), 400);
 
@@ -140,17 +116,17 @@ function handleSubmit() {
     return;
   }
 
-  status.innerHTML = "🔄 Đang lấy vị trí GPS...";
-  status.style.color = "blue";
+  // Ẩn hướng dẫn cũ và hiện loading
+  guideBox.style.display = "none";
+  status.innerHTML = "";
+  loader.style.display = "flex";
 
-  // Lấy vị trí GPS
   navigator.geolocation.getCurrentPosition(
     function(pos) {
-      status.innerHTML = "📡 Đang gửi dữ liệu...";
       const lat = pos.coords.latitude;
       const lng = pos.coords.longitude;
 
-      // --- THAY LINK CỦA BẠN VÀO DÒNG DƯỚI ĐÂY ---
+      // --- DÁN LINK /EXEC CỦA BẠN VÀO ĐÂY ---
       const scriptURL = "https://script.google.com/macros/s/AKfycbwPiCZcfjdZ5hfc6WfNUq00C0nW7PIkf6vTeMHK3RK1qUqYymNdqWVR-VYT_W1rpUld/exec";
       
       const finalURL = scriptURL 
@@ -162,34 +138,47 @@ function handleSubmit() {
 
       fetch(finalURL, { mode: 'no-cors' })
         .then(() => {
-          status.innerHTML = "✅ Gửi thành công! <br> RANI đã nhận được thông tin.";
+          loader.style.display = "none";
+          status.innerHTML = "✅ Gửi thành công! RANI đã nhận tin.";
           status.style.color = "green";
           btn.style.background = "#4CAF50";
           btn.innerText = "ĐÃ GỬI XONG";
-          
-          // Xóa trắng form
           document.getElementById("name").value = "";
           document.getElementById("phone").value = "";
           document.getElementById("note").value = "";
         })
         .catch(err => {
+          loader.style.display = "none";
           status.innerHTML = "❌ Lỗi mạng: Không thể gửi đi.";
           status.style.color = "red";
         });
     },
     function(error) {
-      let msg = "";
-      if (error.code == 1) msg = "❌ Bạn cần 'Cho phép' vị trí trên điện thoại.";
-      else if (error.code == 3) msg = "❌ Hết thời gian lấy vị trí. Thử lại nhé!";
-      else msg = "❌ Lỗi GPS. Vui lòng bật vị trí.";
-      
-      status.innerHTML = msg;
-      status.style.color = "red";
+      loader.style.display = "none";
+      if (error.code == 1) { // Bị từ chối (Denied)
+        showGuide();
+      } else {
+        status.innerHTML = "❌ Lỗi GPS: Hãy bật định vị điện thoại.";
+        status.style.color = "red";
+      }
     },
     { enableHighAccuracy: true, timeout: 8000 }
   );
 }
-</script>
 
+function showGuide() {
+  const guideBox = document.getElementById("guideBox");
+  const guideText = document.getElementById("guideText");
+  guideBox.style.display = "block";
+
+  // Kiểm tra thiết bị để đưa ra hướng dẫn đúng
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  if (isIOS) {
+    guideText.innerHTML = "Để bật lại: Nhấn vào chữ <b>AA</b> hoặc <b>ổ khóa</b> ở thanh địa chỉ phía dưới -> Chọn <b>Cài đặt trang web</b> -> Cho phép <b>Vị trí</b>.";
+  } else {
+    guideText.innerHTML = "Để bật lại: Nhấn vào <b>Hình ổ khóa</b> bên trái địa chỉ web -> Chọn <b>Quyền</b> -> Bật <b>Vị trí</b>.";
+  }
+}
+</script>
 </body>
 </html>
